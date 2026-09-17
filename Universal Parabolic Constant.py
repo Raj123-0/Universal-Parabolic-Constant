@@ -6,24 +6,34 @@ Calculates Universal Parabolic Constant (P_2) to exactly [N] significant digits
 using logarithmic square-root closed forms, 12-core parallel execution context, 
 C-accelerated gmpy2 math, and strict OEIS truncation formatting.
 """
+from __future__ import annotations
 
-import sys
-import math
-import time
 import argparse
-import multiprocessing as mp
 import gc
 import os
+import sys
+import time
+
+import mpmath
+
+
 
 os.environ['MPMATH_GMPY2'] = '1'
-import gmpy2
-import mpmath
 
 sys.set_int_max_str_digits(0)
 
 NUM_WORKERS = 12
 
+
 def save_oeis_files(constant_name, digits_str, target_digits):
+    """Save oeis files to file.
+    
+    Args:
+        constant_name:
+        digits_str:
+        target_digits:
+    
+    """
     clean_digits = digits_str.replace(".", "")[:target_digits]
     
     raw_filename = f"{constant_name}_{target_digits}_digits.txt"
@@ -37,7 +47,17 @@ def save_oeis_files(constant_name, digits_str, target_digits):
             f.write(f"{idx} {digit}\n")
     print(f"Saved OEIS b-file output to {b_filename}")
 
-def compute_parabolic_hpc(target_digits):
+
+def compute_parabolic_hpc(target_digits) -> Any:
+    """Compute parabolic hpc using optimized algorithms.
+    
+    Args:
+        target_digits:
+    
+    Returns:
+        Any: The computed result
+    
+    """
     dps_working = target_digits + 50
     mpmath.mp.dps = dps_working
     ctx = mpmath.mp
@@ -53,7 +73,11 @@ def compute_parabolic_hpc(target_digits):
     save_oeis_files("Universal_Parabolic", clean_digits, target_digits)
     return clean_digits
 
+
 def main():
+    """Entry point — parse arguments and run the main computation.
+    
+    """
     parser = argparse.ArgumentParser(description="HPC Universal Parabolic OEIS Calculator")
     parser.add_argument("-n", "--digits", type=int, default=1000, help="Target digits (default: 1000)")
     args = parser.parse_args()
